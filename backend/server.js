@@ -297,11 +297,11 @@ function generateOTP() {
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS // Must be a 16-character App Password
+    user: process.env.SMTP_USER || "shieldone20@gmail.com",
+    pass: process.env.SMTP_PASS || "ohbaezdyxjnkxnjr" // Must be a 16-character App Password
   }
 });
-console.log("Gmail SMTP system initialized. Waiting for credentials in .env...");
+console.log("Gmail SMTP system initialized.");
 
 async function sendOTP(email, otp, type = "register") {
   const subject = type === "register" ? "Your SOC Dashboard Verification Code" : "Your SOC Dashboard Password Reset Code";
@@ -314,14 +314,9 @@ async function sendOTP(email, otp, type = "register") {
     </div>
   `;
 
-  if (!process.env.SMTP_USER || !process.env.SMTP_PASS || process.env.SMTP_USER.includes('your_brevo_account_email')) {
-    console.log(`[MOCK EMAIL BACKUP - SMTP NOT CONFIGURED] OTP for ${email} is ${otp}`);
-    return null;
-  }
-
   try {
     let info = await transporter.sendMail({
-      from: `"SOC Dashboard" <${process.env.SMTP_USER}>`,
+      from: `"SOC Dashboard" <${process.env.SMTP_USER || "shieldone20@gmail.com"}>`,
       to: email,
       subject: subject,
       html: htmlContent,
