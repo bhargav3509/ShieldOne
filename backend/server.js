@@ -6,7 +6,7 @@ const axios = require("axios");
 const nodemailer = require("nodemailer");
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 // --- Initialize OpenRouter API ---
 let openai = null;
@@ -25,11 +25,9 @@ const OPENROUTER_MODEL = "google/gemini-2.5-flash";
 // --- Middleware ---
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "http://localhost:3000",
-      "http://127.0.0.1:5173",
-    ],
+    origin: process.env.FRONTEND_URL 
+      ? [process.env.FRONTEND_URL, "http://localhost:5173", "http://localhost:3000"] 
+      : "*",
   })
 );
 app.use(express.json());
