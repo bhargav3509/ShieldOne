@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
+import { io } from 'socket.io-client';
 
 import Header from './components/Header';
 import ChatBot from './components/ChatBot';
@@ -43,43 +44,33 @@ function App() {
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
   }, []);
 
-  // --- Fetch attacks & stats in parallel every 2s ---
+  // --- Connect to WebSockets for real-time data ---
   useEffect(() => {
-    let active = true;
+    const socket = io(API_URL);
 
-    const fetchData = async () => {
-      try {
-        const [attacksRes, statsRes] = await Promise.all([
-          axios.get(`${API_URL}/attacks`),
-          axios.get(`${API_URL}/stats`),
-        ]);
+    socket.on('connect', () => {
+      setError(null);
+    });
 
-        if (active) {
-          setAttacks(attacksRes.data);
-          setStats(statsRes.data);
+    socket.on('connect_error', () => {
+      setError('Unable to connect to real-time data stream. Is the backend server running?');
+    });
 
-          // Build chart data from stats typeCounts
-          const cd = Object.entries(statsRes.data.typeCounts).map(([type, count]) => ({
-            type,
-            count,
-          }));
-          setChartData(cd);
+    socket.on('dashboardData', (data) => {
+      setAttacks(data.attacks);
+      setStats(data.stats);
 
-          setError(null);
-        }
-      } catch {
-        if (active) {
-          setError('Unable to connect to backend. Is the server running on port 5000?');
-        }
-      }
-    };
-
-    fetchData();
-    const interval = setInterval(fetchData, 2000);
+      // Build chart data from stats typeCounts
+      const cd = Object.entries(data.stats.typeCounts).map(([type, count]) => ({
+        type,
+        count,
+      }));
+      setChartData(cd);
+      setError(null);
+    });
 
     return () => {
-      active = false;
-      clearInterval(interval);
+      socket.disconnect();
     };
   }, []);
 

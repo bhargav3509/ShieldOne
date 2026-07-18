@@ -6,6 +6,16 @@ const axios = require("axios");
 const nodemailer = require("nodemailer");
 
 const app = express();
+const http = require("http");
+const { Server } = require("socket.io");
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: process.env.FRONTEND_URL 
+      ? [process.env.FRONTEND_URL, "http://localhost:5173", "http://localhost:3000"] 
+      : "*"
+  }
+});
 const PORT = process.env.PORT || 5000;
 
 // --- Initialize OpenRouter API ---
@@ -31,6 +41,21 @@ app.use(
   })
 );
 app.use(express.json());
+
+let threatIntelPool = [];
+
+async function fetchThreatIntel() {
+  try {
+    const res = await axios.get("https://feodotracker.abuse.ch/downloads/ipblocklist.json");
+    if (res.data && Array.isArray(res.data)) {
+      threatIntelPool = res.data;
+      console.log(`Loaded ${threatIntelPool.length} real threat IPs from Abuse.ch`);
+    }
+  } catch (err) {
+    console.error("Failed to load Abuse.ch threat intel:", err.message);
+  }
+}
+fetchThreatIntel();
 
 // --- In-Memory Stores & Mock Data ---
 let attacks = [];
@@ -91,13 +116,22 @@ function randomIP() {
 }
 
 function generateAttack() {
-  const severity = severities[Math.floor(Math.random() * severities.length)];
-  const type = attackTypes[Math.floor(Math.random() * attackTypes.length)];
+  let severity = severities[Math.floor(Math.random() * severities.length)];
+  let type = attackTypes[Math.floor(Math.random() * attackTypes.length)];
+  let ip = randomIP();
+
+  if (threatIntelPool.length > 0 && Math.random() > 0.3) {
+    // 70% chance to use real botnet data
+    const realThreat = threatIntelPool[Math.floor(Math.random() * threatIntelPool.length)];
+    ip = realThreat.ip_address;
+    type = realThreat.malware || "Malware C2";
+    severity = "high";
+  }
 
   const attack = {
     id: idCounter++,
     type,
-    ip: randomIP(),
+    ip,
     severity,
     time: new Date().toLocaleTimeString(),
     lat: Math.random() * 160 - 80,
@@ -120,6 +154,11 @@ function generateAttack() {
     });
     if (incidents.length > 20) incidents.shift();
   }
+
+  io.emit('dashboardData', {
+    attacks,
+    stats: getStats()
+  });
 }
 
 setInterval(generateAttack, 2000);
@@ -135,7 +174,7 @@ app.get("/network", (req, res) => res.json(getNetworkData()));
 
 
 
-app.get("/stats", (req, res) => {
+function getStats() {
   const total = attacks.length;
   const severityCounts = { low: 0, medium: 0, high: 0 };
   const typeCounts = {};
@@ -147,13 +186,17 @@ app.get("/stats", (req, res) => {
 
   const topType = Object.entries(typeCounts).sort((a, b) => b[1] - a[1])[0];
 
-  res.json({
+  return {
     total,
     severityCounts,
     typeCounts,
     topType: topType ? { type: topType[0], count: topType[1] } : null,
     uniqueIPs: new Set(attacks.map((a) => a.ip)).size,
-  });
+  };
+}
+
+app.get("/stats", (req, res) => {
+  res.json(getStats());
 });
 
 // POST /ai-explain — OpenRouter integration
@@ -234,9 +277,17 @@ app.post("/chat", async (req, res) => {
   }
 });
 
-// --- AUTHENTICATION ROUTES (Mock In-Memory) ---
-const users = []; // { email, password, active }
-const otps = {};  // { email: { otp, type } }
+// --- AUTHENTICATION ROUTES (Supabase) ---
+const { createClient } = require('@supabase/supabase-js');
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_KEY;
+let supabase = null;
+if (supabaseUrl && supabaseKey) {
+  supabase = createClient(supabaseUrl, supabaseKey);
+  console.log("Supabase client initialized.");
+} else {
+  console.warn("WARNING: Supabase keys not set. Auth routes will fail.");
+}
 
 function generateOTP() {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -288,21 +339,39 @@ async function sendOTP(email, otp, type = "register") {
 }
 
 app.post("/auth/register", async (req, res) => {
+  console.log(`[AUTH] Received register request for: ${req.body.email}`);
   const { email, password } = req.body;
   if (!email || !password) return res.status(400).json({ error: "Missing email or password" });
+  if (!supabase) return res.status(500).json({ error: "Database not configured" });
   
-  const existingUser = users.find(u => u.email === email);
-  if (existingUser && existingUser.active) {
-    return res.status(400).json({ error: "Email already registered" });
-  }
+  try {
+    const { data: existingUsers, error: fetchErr } = await supabase.from('users').select('*').eq('email', email);
+    if (fetchErr) {
+      console.error("[SUPABASE ERROR] Failed to fetch user:", fetchErr);
+      return res.status(500).json({ error: "Database fetch error" });
+    }
+    
+    if (existingUsers && existingUsers.length > 0 && existingUsers[0].active) {
+      console.log(`[AUTH] Email already registered: ${email}`);
+      return res.status(400).json({ error: "Email already registered" });
+    }
 
-  // Create pending user if not exists
-  if (!existingUser) {
-    users.push({ email, password, active: false });
+    if (!existingUsers || existingUsers.length === 0) {
+      console.log(`[AUTH] Creating new user: ${email}`);
+      const { error: insertErr } = await supabase.from('users').insert({ email, password, active: false });
+      if (insertErr) console.error("[SUPABASE ERROR] Insert user failed:", insertErr);
+    } else {
+      console.log(`[AUTH] Updating existing pending user: ${email}`);
+      const { error: updateErr } = await supabase.from('users').update({ password }).eq('email', email);
+      if (updateErr) console.error("[SUPABASE ERROR] Update user failed:", updateErr);
+    }
+  } catch (err) {
+    console.error("[AUTH] Unexpected error:", err);
   }
 
   const otp = generateOTP();
-  otps[email] = { otp, type: "register" };
+  await supabase.from('otps').delete().eq('email', email);
+  await supabase.from('otps').insert({ email, otp, type: "register" });
   
   console.log(`[MOCK EMAIL BACKUP] OTP for ${email} is ${otp}`);
   
@@ -312,26 +381,31 @@ app.post("/auth/register", async (req, res) => {
   res.json({ message: "OTP sent successfully", previewUrl });
 });
 
-app.post("/auth/verify-otp", (req, res) => {
+app.post("/auth/verify-otp", async (req, res) => {
+  console.log(`[AUTH] Received verify-otp request for: ${req.body.email} with OTP: ${req.body.otp}`);
   const { email, otp } = req.body;
+  if (!supabase) return res.status(500).json({ error: "Database not configured" });
   
-  if (otps[email] && otps[email].otp === otp) {
-    delete otps[email];
+  const { data: otpsData } = await supabase.from('otps').select('*').eq('email', email).eq('otp', otp).order('created_at', { ascending: false });
+  
+  if (otpsData && otpsData.length > 0) {
+    await supabase.from('otps').delete().eq('email', email);
     
-    const user = users.find(u => u.email === email);
-    if (user) {
-      user.active = true;
-      return res.json({ message: "Account verified successfully", token: "mock-jwt-token" });
-    }
+    await supabase.from('users').update({ active: true }).eq('email', email);
+    return res.json({ message: "Account verified successfully", token: "mock-jwt-token" });
   }
   
   res.status(400).json({ error: "Invalid or expired OTP" });
 });
 
-app.post("/auth/login", (req, res) => {
+app.post("/auth/login", async (req, res) => {
+  console.log(`[AUTH] Received login request for: ${req.body.email}`);
   const { email, password } = req.body;
+  if (!supabase) return res.status(500).json({ error: "Database not configured" });
   
-  const user = users.find(u => u.email === email && u.password === password);
+  const { data: usersData } = await supabase.from('users').select('*').eq('email', email).eq('password', password);
+  const user = usersData && usersData.length > 0 ? usersData[0] : null;
+  
   if (!user) {
     return res.status(401).json({ error: "Invalid credentials" });
   }
@@ -344,8 +418,12 @@ app.post("/auth/login", (req, res) => {
 });
 
 app.post("/auth/forgot-password", async (req, res) => {
+  console.log(`[AUTH] Received forgot-password request for: ${req.body.email}`);
   const { email } = req.body;
-  const user = users.find(u => u.email === email && u.active);
+  if (!supabase) return res.status(500).json({ error: "Database not configured" });
+
+  const { data: usersData } = await supabase.from('users').select('*').eq('email', email).eq('active', true);
+  const user = usersData && usersData.length > 0 ? usersData[0] : null;
   
   if (!user) {
     // Return success anyway for security (don't reveal if email exists)
@@ -353,7 +431,8 @@ app.post("/auth/forgot-password", async (req, res) => {
   }
 
   const otp = generateOTP();
-  otps[email] = { otp, type: "reset" };
+  await supabase.from('otps').delete().eq('email', email);
+  await supabase.from('otps').insert({ email, otp, type: "reset" });
   
   console.log(`[MOCK EMAIL BACKUP] Password Reset OTP for ${email} is ${otp}`);
 
@@ -363,16 +442,16 @@ app.post("/auth/forgot-password", async (req, res) => {
   res.json({ message: "If the email exists, an OTP was sent.", previewUrl });
 });
 
-app.post("/auth/reset-password", (req, res) => {
+app.post("/auth/reset-password", async (req, res) => {
   const { email, otp, newPassword } = req.body;
+  if (!supabase) return res.status(500).json({ error: "Database not configured" });
   
-  if (otps[email] && otps[email].otp === otp && otps[email].type === "reset") {
-    delete otps[email];
-    const user = users.find(u => u.email === email);
-    if (user) {
-      user.password = newPassword;
-      return res.json({ message: "Password reset successfully" });
-    }
+  const { data: otpsData } = await supabase.from('otps').select('*').eq('email', email).eq('otp', otp).eq('type', 'reset').order('created_at', { ascending: false });
+  
+  if (otpsData && otpsData.length > 0) {
+    await supabase.from('otps').delete().eq('email', email);
+    await supabase.from('users').update({ password: newPassword }).eq('email', email);
+    return res.json({ message: "Password reset successfully" });
   }
   
   res.status(400).json({ error: "Invalid OTP" });
@@ -384,6 +463,6 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: "Internal server error" });
 });
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`SOC Backend running on http://localhost:${PORT}`);
 });
