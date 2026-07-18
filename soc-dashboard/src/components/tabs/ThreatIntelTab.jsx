@@ -11,8 +11,8 @@ export default function ThreatIntelTab() {
     const fetchData = async () => {
       try {
         const [intelRes, netRes] = await Promise.all([
-          axios.get('http://localhost:5000/threat-intel'),
-          axios.get('http://localhost:5000/network')
+          axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/threat-intel`),
+          axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/network`)
         ]);
         if (active) {
           setIntel(intelRes.data);

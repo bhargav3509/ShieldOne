@@ -12,7 +12,7 @@ export default function ForgotPasswordForm({ setView }) {
   const handleSendOTP = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('http://localhost:5000/auth/forgot-password', { email });
+      const res = await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/auth/forgot-password`, { email });
       
       if (res.data.previewUrl) {
         window.open(res.data.previewUrl, '_blank');
@@ -29,7 +29,7 @@ export default function ForgotPasswordForm({ setView }) {
   const handleReset = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/auth/reset-password', { email, otp, newPassword });
+      await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/auth/reset-password`, { email, otp, newPassword });
       setView('login');
     } catch (err) {
       setError(err.response?.data?.error || 'Invalid OTP');
