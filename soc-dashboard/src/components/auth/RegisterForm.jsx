@@ -67,7 +67,7 @@ export default function RegisterForm({ setView }) {
     }
 
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/auth/register`, {
+      const res = await axios.post(`${import.meta.env.VITE_API_URL || 'https://soc-dashboard-1-m5gr.onrender.com'}/auth/register`, {
         email: email,
         password: password
       });

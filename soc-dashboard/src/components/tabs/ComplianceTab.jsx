@@ -11,8 +11,8 @@ export default function ComplianceTab() {
     const fetchData = async () => {
       try {
         const [compRes, uebaRes] = await Promise.all([
-          axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/compliance`),
-          axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/ueba`)
+          axios.get(`${import.meta.env.VITE_API_URL || 'https://soc-dashboard-1-m5gr.onrender.com'}/compliance`),
+          axios.get(`${import.meta.env.VITE_API_URL || 'https://soc-dashboard-1-m5gr.onrender.com'}/ueba`)
         ]);
         if (active) {
           setCompliance(compRes.data);

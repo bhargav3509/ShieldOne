@@ -51,7 +51,7 @@ export default function OTPForm({ email, onLogin }) {
     if (code.length < 6) return;
 
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/auth/verify-otp`, { email, otp: code });
+      const res = await axios.post(`${import.meta.env.VITE_API_URL || 'https://soc-dashboard-1-m5gr.onrender.com'}/auth/verify-otp`, { email, otp: code });
       onLogin(res.data.token);
     } catch (err) {
       setError(err.response?.data?.error || 'Invalid OTP');

@@ -9,7 +9,7 @@ export default function EndpointsTab() {
     let active = true;
     const fetchEndpoints = async () => {
       try {
-        const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/endpoints`);
+        const res = await axios.get(`${import.meta.env.VITE_API_URL || 'https://soc-dashboard-1-m5gr.onrender.com'}/endpoints`);
         if (active) {
           setEndpoints(res.data);
           setLoading(false);

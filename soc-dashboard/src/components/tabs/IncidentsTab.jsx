@@ -9,7 +9,7 @@ export default function IncidentsTab() {
     let active = true;
     const fetchIncidents = async () => {
       try {
-        const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/incidents`);
+        const res = await axios.get(`${import.meta.env.VITE_API_URL || 'https://soc-dashboard-1-m5gr.onrender.com'}/incidents`);
         if (active) {
           // Reverse so newest is first
           setIncidents([...res.data].reverse());
