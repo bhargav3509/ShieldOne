@@ -1,9 +1,11 @@
 import { useState, useRef } from 'react';
 import axios from 'axios';
+import { API_URL } from '../../App';
 
-export default function OTPForm({ email, onLogin }) {
+export default function OTPForm({ email, onLogin, selectedPlan }) {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const inputs = useRef([]);
 
   const handleChange = (e, index) => {
@@ -50,11 +52,15 @@ export default function OTPForm({ email, onLogin }) {
     const code = otp.join('');
     if (code.length < 6) return;
 
+    setLoading(true);
+    setError('');
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_URL || 'https://soc-dashboard-1-m5gr.onrender.com'}/auth/verify-otp`, { email, otp: code });
-      onLogin(res.data.token);
+      const res = await axios.post(`${API_URL}/auth/verify-otp`, { email, otp: code });
+      onLogin(res.data.token, res.data.plan || selectedPlan, email);
     } catch (err) {
       setError(err.response?.data?.error || 'Invalid OTP');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -82,9 +88,13 @@ export default function OTPForm({ email, onLogin }) {
           ))}
         </div>
         
-        <button type="submit" className="btn" style={{ width: '100%', marginTop: 24 }}>
-          Verify Account
+        <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: 24 }} disabled={loading}>
+          {loading ? 'Verifying...' : 'Verify Account'}
         </button>
+
+        <p style={{ textAlign: 'center', marginTop: 16, fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+          Code sent to your email. (In local demo mode, code is also printed in your backend terminal console).
+        </p>
       </form>
     </div>
   );

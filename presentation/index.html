@@ -1,0 +1,1664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ShieldOne — Security Operations Center Presentation</title>
+  <link rel="icon" type="image/svg+xml" href="./shieldone-favicon.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./shieldone-32.png" />
+  <link rel="shortcut icon" href="./favicon.ico" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-canvas: #0f172a;
+      --bg-slide: #ffffff;
+      --bg-panel: #f8fafc;
+      --bg-panel-alt: #f1f5f9;
+      --navy-900: #0f172a;
+      --navy-800: #1e293b;
+      --navy-700: #334155;
+      --blue-600: #2563eb;
+      --blue-700: #1d4ed8;
+      --blue-50: #eff6ff;
+      --blue-100: #dbeafe;
+      --border-subtle: #e2e8f0;
+      --border-medium: #cbd5e1;
+      --border-strong: #94a3b8;
+      --text-main: #0f172a;
+      --text-body: #334155;
+      --text-muted: #64748b;
+      --shadow-slide: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1);
+      --shadow-card: 0 2px 4px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg-canvas);
+      background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+      background-size: 24px 24px;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      user-select: none;
+    }
+
+    /* 16:9 Presentation Stage */
+    .deck-wrapper {
+      width: 100%;
+      max-width: 1160px;
+      aspect-ratio: 16 / 9;
+      background: var(--bg-slide);
+      border-radius: 8px;
+      box-shadow: var(--shadow-slide);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Top Progress Bar */
+    .progress-bar-container {
+      width: 100%;
+      height: 3px;
+      background: var(--border-subtle);
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--blue-600);
+      width: 14.28%;
+      transition: width 0.3s ease;
+    }
+
+    /* Formal Slide Header */
+    .slide-top-header {
+      padding: 14px 44px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #ffffff;
+    }
+
+    .header-branding {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--blue-600);
+      background: var(--blue-50);
+      padding: 3px 8px;
+      border-radius: 4px;
+      border: 1px solid var(--blue-100);
+      letter-spacing: 0.04em;
+    }
+
+    .header-project-name {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--navy-900);
+      letter-spacing: -0.01em;
+    }
+
+    .header-slide-count {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    /* Slide Viewport */
+    .slides-container {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      padding: 30px 48px 24px;
+      display: none;
+      flex-direction: column;
+      justify-content: space-between;
+      background: #ffffff;
+    }
+
+    .slide.active {
+      display: flex;
+    }
+
+    /* Standard Slide Header Elements */
+    .slide-headline-group {
+      margin-bottom: 14px;
+    }
+
+    .slide-kicker {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--blue-600);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 4px;
+    }
+
+    .slide-main-title {
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: var(--navy-900);
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+    }
+
+    .slide-main-title::after {
+      content: "";
+      display: block;
+      width: 32px;
+      height: 3px;
+      background: var(--blue-600);
+      margin-top: 5px;
+      border-radius: 2px;
+    }
+
+    /* SLIDE 1: TITLE SLIDE */
+    .title-layout {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .title-category-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--navy-700);
+      background: var(--bg-panel);
+      border: 1px solid var(--border-medium);
+      padding: 6px 16px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 24px;
+    }
+
+    .title-primary {
+      font-size: 4rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: var(--navy-900);
+      line-height: 1;
+      margin-bottom: 14px;
+    }
+
+    .title-secondary {
+      font-size: 1.25rem;
+      font-weight: 500;
+      color: var(--text-body);
+      max-width: 740px;
+      line-height: 1.45;
+      margin-bottom: 38px;
+    }
+
+    .title-meta-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-medium);
+      border-radius: 6px;
+      padding: 16px 40px;
+      display: flex;
+      align-items: center;
+      gap: 36px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .meta-group {
+      text-align: left;
+    }
+
+    .meta-header {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: 600;
+      letter-spacing: 0.06em;
+    }
+
+    .meta-content {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--navy-900);
+      margin-top: 2px;
+    }
+
+    .meta-separator {
+      width: 1px;
+      height: 32px;
+      background: var(--border-medium);
+    }
+
+    /* SLIDE 2: PROBLEM & IDEA */
+    .split-col-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.05fr;
+      gap: 22px;
+      flex: 1;
+    }
+
+    .formal-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .formal-card-header {
+      font-size: 0.86rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--navy-900);
+      border-bottom: 1px solid var(--border-medium);
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .card-list li {
+      font-size: 0.85rem;
+      color: var(--text-body);
+      line-height: 1.4;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .list-bullet {
+      color: var(--blue-600);
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .card-list li strong {
+      color: var(--navy-900);
+      font-weight: 600;
+    }
+
+    .solution-highlight-box {
+      margin-top: 12px;
+      background: #ffffff;
+      border: 1px solid var(--border-medium);
+      border-left: 3px solid var(--blue-600);
+      padding: 8px 12px;
+      font-size: 0.8rem;
+      color: var(--text-body);
+      line-height: 1.4;
+    }
+
+    /* SLIDE 3: WHAT SHIELDONE DOES (BALANCED WITH SYMBOLS & PILLS) */
+    .five-modules-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      flex: 1;
+      align-items: stretch;
+    }
+
+    .module-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 16px 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: border-color 0.2s ease;
+    }
+
+    .module-card:hover {
+      border-color: var(--border-strong);
+    }
+
+    .module-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .module-index {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--blue-600);
+      background: var(--blue-50);
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+
+    .module-symbol-icon {
+      width: 24px;
+      height: 24px;
+      color: var(--navy-700);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .module-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--navy-900);
+      margin-bottom: 8px;
+      border-bottom: 1px solid var(--border-medium);
+      padding-bottom: 4px;
+    }
+
+    .module-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.78rem;
+      color: var(--text-body);
+      flex: 1;
+    }
+
+    .module-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      line-height: 1.35;
+    }
+
+    .module-list li::before {
+      content: "—";
+      color: var(--blue-600);
+      font-weight: 700;
+    }
+
+    .module-footer-tag {
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px dashed var(--border-medium);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.66rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    /* SLIDE 4: REAL-TIME THREAT INTELLIGENCE */
+    .intel-diagram-grid {
+      display: grid;
+      grid-template-columns: 1fr 190px 1fr;
+      gap: 18px;
+      align-items: center;
+      flex: 1;
+    }
+
+    .intel-feed-col {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .feed-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 11px 14px;
+      border-left: 3px solid var(--navy-700);
+    }
+
+    .feed-name {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--navy-900);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .feed-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: var(--blue-600);
+      background: var(--blue-50);
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+
+    .feed-desc {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .core-hub-box {
+      background: #ffffff;
+      border: 2px solid var(--blue-600);
+      border-radius: 6px;
+      padding: 22px 14px;
+      text-align: center;
+      box-shadow: var(--shadow-card);
+    }
+
+    .core-hub-name {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--navy-900);
+      letter-spacing: -0.01em;
+    }
+
+    .core-hub-sub {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--blue-600);
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .core-hub-badge {
+      display: inline-block;
+      margin-top: 10px;
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      background: var(--bg-panel-alt);
+      padding: 3px 8px;
+      border-radius: 3px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    /* SLIDE 5: HOW SHIELDONE WORKS */
+    .arch-flow-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      flex: 1;
+      justify-content: center;
+    }
+
+    .arch-pipeline {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }
+
+    .pipeline-stage {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 16px 12px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .pipeline-stage.active-stage {
+      border-color: var(--blue-600);
+      background: var(--blue-50);
+    }
+
+    .stage-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--blue-600);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .stage-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--navy-900);
+      margin-bottom: 4px;
+    }
+
+    .stage-sub {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      line-height: 1.35;
+    }
+
+    .pipeline-callout {
+      background: #ffffff;
+      border: 1px solid var(--border-medium);
+      border-left: 3px solid var(--blue-600);
+      border-radius: 4px;
+      padding: 12px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .callout-main-text {
+      font-size: 0.84rem;
+      color: var(--text-body);
+    }
+
+    .callout-main-text strong {
+      color: var(--navy-900);
+    }
+
+    .callout-latency-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--blue-600);
+      background: var(--blue-50);
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    /* SLIDE 6: AI FEATURES & DETAILED DASHBOARD UI PREVIEW */
+    .ai-dashboard-split {
+      display: grid;
+      grid-template-columns: 0.82fr 1.18fr;
+      gap: 18px;
+      flex: 1;
+      align-items: stretch;
+    }
+
+    .dashboard-preview-card {
+      background: #ffffff;
+      border: 1px solid var(--border-medium);
+      border-radius: 6px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .preview-header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 5px;
+    }
+
+    .preview-title-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--navy-900);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    /* UI Mockup: Top Risk Card */
+    .ui-top-risk-banner {
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: #ffffff;
+    }
+
+    .ui-gauge-circle {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 3.5px solid #0f172a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .ui-gauge-score {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1;
+    }
+
+    .ui-gauge-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.45rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #64748b;
+      margin-top: 1px;
+    }
+
+    .ui-risk-text-block {
+      flex: 1;
+    }
+
+    .ui-threat-level-header {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .ui-threat-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #0f172a;
+    }
+
+    .ui-threat-subtext {
+      font-size: 0.68rem;
+      color: #64748b;
+      margin-top: 2px;
+      line-height: 1.2;
+    }
+
+    .ui-anomaly-strip {
+      margin-top: 4px;
+      background: #f8fafc;
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      color: #334155;
+    }
+
+    /* UI Mockup: 4 Stat Cards */
+    .ui-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+
+    .ui-stat-card {
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      padding: 6px 8px;
+      background: #ffffff;
+    }
+
+    .ui-stat-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.56rem;
+      color: #64748b;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .ui-stat-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-top: 2px;
+    }
+
+    /* UI Mockup: Bottom Analytics & Map */
+    .ui-bottom-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      flex: 1;
+    }
+
+    .ui-sub-panel {
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      padding: 6px 8px;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .ui-sub-panel-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.58rem;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+
+    .ui-bar-chart-mock {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      height: 44px;
+      padding-top: 4px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .ui-bar {
+      flex: 1;
+      background: #1e293b;
+      border-radius: 2px 2px 0 0;
+    }
+
+    /* World Map Visual representation */
+    .ui-map-wrapper {
+      position: relative;
+      height: 48px;
+      background: #f8fafc;
+      border-radius: 3px;
+      border: 1px solid var(--border-subtle);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ui-map-svg {
+      width: 100%;
+      height: 100%;
+      opacity: 0.35;
+    }
+
+    .ui-map-zoom-ctrl {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      background: #ffffff;
+      border: 1px solid var(--border-subtle);
+      border-radius: 2px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.5rem;
+      font-weight: 700;
+      color: #0f172a;
+      padding: 1px 3px;
+      line-height: 1;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+
+    .ui-map-target-dot {
+      position: absolute;
+      width: 7px;
+      height: 7px;
+      background: #0f172a;
+      border-radius: 50%;
+      box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.2);
+    }
+
+    .ui-map-attribution {
+      position: absolute;
+      bottom: 2px;
+      right: 3px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.42rem;
+      color: #64748b;
+      background: rgba(255, 255, 255, 0.85);
+      padding: 0 2px;
+      border-radius: 2px;
+    }
+
+    /* SLIDE 7: TECH & CONCLUSION */
+    .tech-conclusion-layout {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 22px;
+      flex: 1;
+      align-items: stretch;
+    }
+
+    .tech-matrix {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .matrix-row {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      padding: 10px 14px;
+    }
+
+    .matrix-category {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--blue-600);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .matrix-items {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--navy-900);
+    }
+
+    .formal-conclusion-box {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-medium);
+      border-radius: 6px;
+      padding: 28px 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+    }
+
+    .conclusion-quote-text {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--navy-900);
+      line-height: 1.45;
+      letter-spacing: -0.01em;
+    }
+
+    .conclusion-subline {
+      margin-top: 14px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* Deck Footer Controls */
+    .deck-control-bar {
+      padding: 12px 44px;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #ffffff;
+    }
+
+    .btn-control {
+      background: #ffffff;
+      border: 1px solid var(--border-medium);
+      color: var(--navy-900);
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border-radius: 4px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .btn-control:hover:not(:disabled) {
+      background: var(--bg-panel);
+      border-color: var(--border-strong);
+    }
+
+    .btn-control:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .btn-primary-action {
+      background: var(--navy-900);
+      border-color: var(--navy-900);
+      color: #ffffff;
+    }
+
+    .btn-primary-action:hover:not(:disabled) {
+      background: var(--navy-800);
+      border-color: var(--navy-800);
+    }
+
+    .slide-dots-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .slide-dot-item {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--border-medium);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .slide-dot-item.active {
+      background: var(--blue-600);
+      width: 20px;
+      border-radius: 4px;
+    }
+
+    .hotkey-hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Speaker Notes Drawer */
+    .notes-drawer {
+      position: absolute;
+      bottom: 50px;
+      left: 44px;
+      right: 44px;
+      background: #ffffff;
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      padding: 16px 20px;
+      display: none;
+      z-index: 100;
+    }
+
+    .notes-drawer.open {
+      display: block;
+    }
+
+    .notes-header {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--blue-600);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .notes-text {
+      font-size: 0.84rem;
+      color: var(--text-body);
+      line-height: 1.45;
+    }
+
+    /* Fullscreen Mode */
+    :fullscreen .deck-wrapper {
+      max-width: 100vw;
+      width: 100vw;
+      height: 100vh;
+      border-radius: 0;
+    }
+
+    @media print {
+      body { background: transparent; padding: 0; }
+      .deck-wrapper { border: none; box-shadow: none; max-width: 100%; border-radius: 0; }
+      .slide-top-header, .deck-control-bar, .progress-bar-container, .notes-drawer { display: none !important; }
+      .slide {
+        display: flex !important;
+        position: relative;
+        page-break-after: always;
+        height: 100vh;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="deck-wrapper" id="deckContainer">
+
+    <!-- Top Progress Bar -->
+    <div class="progress-bar-container">
+      <div class="progress-bar-fill" id="progressBar"></div>
+    </div>
+
+    <!-- Formal Header -->
+    <header class="slide-top-header">
+      <div class="header-branding">
+        <span class="header-tag">SOC PLATFORM</span>
+        <span class="header-project-name">ShieldOne</span>
+      </div>
+      <div class="header-slide-count" id="slideIndicator">Slide 1 of 7</div>
+    </header>
+
+    <!-- Slide Stage -->
+    <main class="slides-container">
+
+      <!-- SLIDE 1: TITLE -->
+      <section class="slide active" data-index="1" data-notes="Introduce the project name ShieldOne, subtitle, and personal details. State clearly that this is a real-time Security Operations Center platform.">
+        <div class="title-layout">
+          <div class="title-category-badge">Academic Project Presentation</div>
+          <h1 class="title-primary">ShieldOne</h1>
+          <h2 class="title-secondary">Security Operations Center — Real-Time Threat Monitoring Platform</h2>
+
+          <div class="title-meta-card">
+            <div class="meta-group">
+              <div class="meta-header">Presenter</div>
+              <div class="meta-content">Bhargav</div>
+            </div>
+            <div class="meta-separator"></div>
+            <div class="meta-group">
+              <div class="meta-header">University UID</div>
+              <div class="meta-content" style="font-family: 'JetBrains Mono', monospace;">24BCS11028</div>
+            </div>
+            <div class="meta-separator"></div>
+            <div class="meta-group">
+              <div class="meta-header">Section</div>
+              <div class="meta-content">803A</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 2: PROBLEM & IDEA -->
+      <section class="slide" data-index="2" data-notes="Explain the 4 critical challenges: 24/7 continuous monitoring, fragmented multi-source intelligence, visualization/prioritization bottleneck, and analyst fatigue. Then introduce ShieldOne as the solution.">
+        <div class="slide-headline-group">
+          <div class="slide-kicker">Motivation & Overview</div>
+          <h2 class="slide-main-title">Problem Statement & Proposed Solution</h2>
+        </div>
+
+        <div class="split-col-layout">
+          <!-- Left: Problem -->
+          <div class="formal-card">
+            <div>
+              <div class="formal-card-header">
+                <span>Current Industry Challenges</span>
+              </div>
+              <ul class="card-list">
+                <li>
+                  <span class="list-bullet">•</span>
+                  <span><strong>Continuous Monitoring:</strong> Cyber threats require 24/7 streaming detection rather than periodic log reviews.</span>
+                </li>
+                <li>
+                  <span class="list-bullet">•</span>
+                  <span><strong>Fragmented Feeds:</strong> Intelligence data is dispersed across disparate, uncoordinated external repositories.</span>
+                </li>
+                <li>
+                  <span class="list-bullet">•</span>
+                  <span><strong>Prioritization Bottleneck:</strong> Raw indicator logs lack context, geolocation mapping, and severity scoring.</span>
+                </li>
+                <li>
+                  <span class="list-bullet">•</span>
+                  <span><strong>Analyst Fatigue:</strong> Security teams need rapid threat interpretation to reduce MTTD and MTTR.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Right: Solution -->
+          <div class="formal-card">
+            <div>
+              <div class="formal-card-header">
+                <span>The ShieldOne Platform</span>
+              </div>
+              <ul class="card-list">
+                <li>
+                  <span class="list-bullet">•</span>
+                  <span><strong>Unified Ingestion:</strong> Collects multi-source threat feeds in real time.</span>
+                </li>
+                <li>
+                  <span class="list-bullet">•</span>
+                  <span><strong>Global Visualization:</strong> Maps active attack telemetry and geographical distribution.</span>
+                </li>
+                <li>
+                  <span class="list-bullet">•</span>
+                  <span><strong>Incident Escalation:</strong> Routes critical security events to analyst workflows.</span>
+                </li>
+                <li>
+                  <span class="list-bullet">•</span>
+                  <span><strong>AI Explanation:</strong> Utilizes LLM intelligence for instant threat context and mitigation.</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="solution-highlight-box">
+              <strong>Core Objective:</strong> Delivering immediate defensive awareness from raw, unstructured threat streams.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 3: WHAT SHIELDONE DOES (WITH FORMAL SYMBOLS & NO EMPTY DEAD SPACE) -->
+      <section class="slide" data-index="3" data-notes="Walk through each of the 5 documented modules: Dashboard, Incidents, Threat Intelligence, Endpoints, and Compliance. Highlight their role in full-perimeter monitoring.">
+        <div class="slide-headline-group">
+          <div class="slide-kicker">Core Capabilities</div>
+          <h2 class="slide-main-title">What ShieldOne Does</h2>
+        </div>
+
+        <div class="five-modules-grid">
+          <!-- Card 1 -->
+          <div class="module-card">
+            <div>
+              <div class="module-top-row">
+                <span class="module-index">MOD 01</span>
+                <div class="module-symbol-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                </div>
+              </div>
+              <div class="module-title">Dashboard</div>
+              <ul class="module-list">
+                <li>Live attack stream</li>
+                <li>Interactive world map</li>
+                <li>Analytics charts</li>
+                <li>Dynamic risk gauge</li>
+              </ul>
+            </div>
+            <div class="module-footer-tag">Real-Time Telemetry</div>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="module-card">
+            <div>
+              <div class="module-top-row">
+                <span class="module-index">MOD 02</span>
+                <div class="module-symbol-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="m10.29 3.86-8.6 14.9A2 2 0 0 0 3.4 21.8h17.2a2 2 0 0 0 1.71-3.04l-8.6-14.9a2 2 0 0 0-3.42 0z"/></svg>
+                </div>
+              </div>
+              <div class="module-title">Incidents</div>
+              <ul class="module-list">
+                <li>Escalated threats</li>
+                <li>Analyst assignment</li>
+                <li>MTTD & MTTR tracking</li>
+                <li>Lifecycle queue</li>
+              </ul>
+            </div>
+            <div class="module-footer-tag">Triage & SLA</div>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="module-card">
+            <div>
+              <div class="module-top-row">
+                <span class="module-index">MOD 03</span>
+                <div class="module-symbol-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+                </div>
+              </div>
+              <div class="module-title">Threat Intel</div>
+              <ul class="module-list">
+                <li>Actively exploited CVEs</li>
+                <li>Ransomware tracking</li>
+                <li>CISA advisories</li>
+                <li>Catalog inspection</li>
+              </ul>
+            </div>
+            <div class="module-footer-tag">CISA & Abuse.ch</div>
+          </div>
+
+          <!-- Card 4 -->
+          <div class="module-card">
+            <div>
+              <div class="module-top-row">
+                <span class="module-index">MOD 04</span>
+                <div class="module-symbol-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+                </div>
+              </div>
+              <div class="module-title">Endpoints</div>
+              <ul class="module-list">
+                <li>Workstation health</li>
+                <li>Server status checks</li>
+                <li>Vulnerability tallies</li>
+                <li>OS classification</li>
+              </ul>
+            </div>
+            <div class="module-footer-tag">Host Visibility</div>
+          </div>
+
+          <!-- Card 5 -->
+          <div class="module-card">
+            <div>
+              <div class="module-top-row">
+                <span class="module-index">MOD 05</span>
+                <div class="module-symbol-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                </div>
+              </div>
+              <div class="module-title">Compliance</div>
+              <ul class="module-list">
+                <li>SOC 2 Type II</li>
+                <li>ISO 27001 audit</li>
+                <li>GDPR verification</li>
+                <li>PCI DSS compliance</li>
+              </ul>
+            </div>
+            <div class="module-footer-tag">Audit Frameworks</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 4: REAL-TIME THREAT INTELLIGENCE -->
+      <section class="slide" data-index="4" data-notes="Explain the 5 documented open threat feeds feeding into the central ShieldOne ingestion engine. Mention how each provides a unique telemetry angle (C2, malware, IOCs, CVEs, top attackers).">
+        <div class="slide-headline-group">
+          <div class="slide-kicker">Data Ingestion</div>
+          <h2 class="slide-main-title">Real-Time Threat Intelligence Sources</h2>
+        </div>
+
+        <div class="intel-diagram-grid">
+          <!-- Left Feeds -->
+          <div class="intel-feed-col">
+            <div class="feed-card">
+              <div class="feed-name">
+                <span>Feodo Tracker</span>
+                <span class="feed-tag">Abuse.ch</span>
+              </div>
+              <div class="feed-desc">Botnet Command & Control (C2) IP addresses</div>
+            </div>
+
+            <div class="feed-card">
+              <div class="feed-name">
+                <span>MalwareBazaar</span>
+                <span class="feed-tag">Abuse.ch</span>
+              </div>
+              <div class="feed-desc">Malware samples, hashes, and family classifications</div>
+            </div>
+          </div>
+
+          <!-- Center Core Hub -->
+          <div class="core-hub-box">
+            <div class="core-hub-name">ShieldOne</div>
+            <div class="core-hub-sub">Ingestion Engine</div>
+            <div class="core-hub-badge">30-Min Feed Sync Cycle</div>
+          </div>
+
+          <!-- Right Feeds -->
+          <div class="intel-feed-col">
+            <div class="feed-card">
+              <div class="feed-name">
+                <span>ThreatFox</span>
+                <span class="feed-tag">Abuse.ch</span>
+              </div>
+              <div class="feed-desc">Indicators of Compromise (IOCs) with IPs and ports</div>
+            </div>
+
+            <div class="feed-card">
+              <div class="feed-name">
+                <span>CISA KEV</span>
+                <span class="feed-tag">Official Feed</span>
+              </div>
+              <div class="feed-desc">Catalog of Known Exploited Vulnerabilities</div>
+            </div>
+
+            <div class="feed-card">
+              <div class="feed-name">
+                <span>DShield / SANS ISC</span>
+                <span class="feed-tag">Sensor Network</span>
+              </div>
+              <div class="feed-desc">Honeypot-derived top hostile attacking IP addresses</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 5: HOW SHIELDONE WORKS -->
+      <section class="slide" data-index="5" data-notes="Explain the end-to-end architecture pipeline from external feeds to the browser. Emphasize that WebSockets push attack events every 2 seconds without page refresh.">
+        <div class="slide-headline-group">
+          <div class="slide-kicker">Architecture & Data Flow</div>
+          <h2 class="slide-main-title">How ShieldOne Works</h2>
+        </div>
+
+        <div class="arch-flow-wrap">
+          <div class="arch-pipeline">
+            <div class="pipeline-stage">
+              <div class="stage-number">Step 1</div>
+              <div class="stage-title">Threat Feeds</div>
+              <div class="stage-sub">5 External Intel Sources</div>
+            </div>
+
+            <div class="pipeline-stage">
+              <div class="stage-number">Step 2</div>
+              <div class="stage-title">Backend API</div>
+              <div class="stage-sub">Node.js + Express Server</div>
+            </div>
+
+            <div class="pipeline-stage">
+              <div class="stage-number">Step 3</div>
+              <div class="stage-title">Processing</div>
+              <div class="stage-sub">GeoIP & Risk Calculation</div>
+            </div>
+
+            <div class="pipeline-stage active-stage">
+              <div class="stage-number">Step 4</div>
+              <div class="stage-title">Socket.io</div>
+              <div class="stage-sub">WebSocket Live Pipeline</div>
+            </div>
+
+            <div class="pipeline-stage">
+              <div class="stage-number">Step 5</div>
+              <div class="stage-title">Dashboard</div>
+              <div class="stage-sub">Feed, Map, Charts & Gauge</div>
+            </div>
+          </div>
+
+          <div class="pipeline-callout">
+            <div class="callout-main-text">
+              <strong>Real-Time Delivery Mechanism:</strong> Attack events are pushed to connected browsers every <strong>2 seconds</strong> using WebSockets without page refresh.
+            </div>
+            <div class="callout-latency-tag">
+              Zero-Polling Streaming
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 6: AI FEATURES & LIVE DASHBOARD INTERFACE (WITH REALISTIC MAP & ANALYTICS) -->
+      <section class="slide" data-index="6" data-notes="Explain the AI engine capabilities on the left, and demonstrate how the live ShieldOne SOC Dashboard presents real-time telemetry on the right, including the 97 Critical Risk Gauge, Anomaly Alert banner, 4 key operational metrics, Analytics bar charts, and Global Attack Map.">
+        <div class="slide-headline-group">
+          <div class="slide-kicker">Intelligence & Interface</div>
+          <h2 class="slide-main-title">AI Engine & Live Dashboard Interface</h2>
+        </div>
+
+        <div class="ai-dashboard-split">
+          <!-- Left: AI Features -->
+          <div class="formal-card">
+            <div>
+              <div class="formal-card-header">
+                <span>AI Features & Triage</span>
+                <span class="feed-tag">Gemini 2.5 Flash</span>
+              </div>
+              <ul class="card-list">
+                <li>
+                  <span class="list-bullet">•</span>
+                  <span><strong>AI Attack Explainer:</strong> 1-click contextual breakdowns for incoming security alerts.</span>
+                </li>
+                <li>
+                  <span class="list-bullet">•</span>
+                  <span><strong>SOC Chatbot Assistant:</strong> Interactive natural language assistant for threat investigation.</span>
+                </li>
+                <li>
+                  <span class="list-bullet">•</span>
+                  <span><strong>Model Integration:</strong> Gemini 2.5 Flash integrated through OpenRouter.</span>
+                </li>
+                <li>
+                  <span class="list-bullet">•</span>
+                  <span><strong>Mitigation Guidance:</strong> Root-cause analysis and actionable defense steps.</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="solution-highlight-box">
+              <strong>Live Telemetry:</strong> Dashboard calculates severity dynamically and triggers anomaly alerts during rapid attack surges.
+            </div>
+          </div>
+
+          <!-- Right: Complete Realistic Dashboard View -->
+          <div class="dashboard-preview-card">
+            <div class="preview-header-bar">
+              <span class="preview-title-tag">ShieldOne SOC Interface</span>
+              <span class="feed-tag" style="background:#f1f5f9; color:#0f172a;">Live View</span>
+            </div>
+
+            <!-- Top Gauge & Anomaly Banner -->
+            <div class="ui-top-risk-banner">
+              <div class="ui-gauge-circle">
+                <span class="ui-gauge-score">97</span>
+                <span class="ui-gauge-label">Risk</span>
+              </div>
+              <div class="ui-risk-text-block">
+                <div class="ui-threat-level-header">
+                  <span class="ui-threat-dot"></span> Critical Threat Level
+                </div>
+                <div class="ui-threat-subtext">
+                  Multiple high-severity threats detected. Immediate action recommended.
+                </div>
+                <div class="ui-anomaly-strip">
+                  [!] Anomaly Detected — Unusual spike in high-severity events
+                </div>
+              </div>
+            </div>
+
+            <!-- Metric Cards Row -->
+            <div class="ui-stats-grid">
+              <div class="ui-stat-card">
+                <div class="ui-stat-label">Total Alerts</div>
+                <div class="ui-stat-val">50</div>
+              </div>
+              <div class="ui-stat-card">
+                <div class="ui-stat-label">High Severity</div>
+                <div class="ui-stat-val">64%</div>
+              </div>
+              <div class="ui-stat-card">
+                <div class="ui-stat-label">Top Threat</div>
+                <div class="ui-stat-val" style="font-size:0.8rem; font-weight:700;">QakBot</div>
+              </div>
+              <div class="ui-stat-card">
+                <div class="ui-stat-label">Active IPs</div>
+                <div class="ui-stat-val">26</div>
+              </div>
+            </div>
+
+            <!-- Bottom Analytics & World Map -->
+            <div class="ui-bottom-grid">
+              <!-- Bar Chart -->
+              <div class="ui-sub-panel">
+                <div class="ui-sub-panel-title">Attack Analytics</div>
+                <div class="ui-bar-chart-mock">
+                  <div class="ui-bar" style="height: 70%;" title="Port Scan: 18"></div>
+                  <div class="ui-bar" style="height: 35%;" title="Emotet: 8"></div>
+                  <div class="ui-bar" style="height: 90%;" title="QakBot: 21"></div>
+                  <div class="ui-bar" style="height: 10%;" title="Brute Force: 1"></div>
+                  <div class="ui-bar" style="height: 10%;" title="DDoS: 1"></div>
+                  <div class="ui-bar" style="height: 12%;" title="Phishing: 1"></div>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-family:'JetBrains Mono',monospace; font-size:0.48rem; color:#64748b; margin-top:2px;">
+                  <span>Scan</span><span>Emotet</span><span>QakBot</span><span>DDoS</span>
+                </div>
+              </div>
+
+              <!-- Global Attack Map with Continents & Points -->
+              <div class="ui-sub-panel">
+                <div class="ui-sub-panel-title">Global Attack Map</div>
+                <div class="ui-map-wrapper">
+                  <div class="ui-map-zoom-ctrl">+<br>−</div>
+                  
+                  <!-- World Map Vector Silhouette -->
+                  <svg class="ui-map-svg" viewBox="0 0 200 100" fill="#94a3b8">
+                    <!-- North America -->
+                    <path d="M20,20 Q35,15 45,28 Q40,42 25,40 Z"/>
+                    <!-- South America -->
+                    <path d="M38,48 Q48,50 44,75 Q35,70 38,48 Z"/>
+                    <!-- Europe -->
+                    <path d="M90,18 Q110,15 115,28 Q95,32 90,18 Z"/>
+                    <!-- Africa -->
+                    <path d="M92,36 Q115,38 110,68 Q90,62 92,36 Z"/>
+                    <!-- Asia -->
+                    <path d="M120,15 Q170,18 165,45 Q130,48 120,15 Z"/>
+                    <!-- Australia -->
+                    <path d="M150,62 Q168,60 165,75 Q148,76 150,62 Z"/>
+                  </svg>
+
+                  <!-- Attack telemetry marker dots -->
+                  <div class="ui-map-target-dot" style="top:25%; left:28%;" title="North America Attack"></div>
+                  <div class="ui-map-target-dot" style="top:22%; left:58%;" title="Europe Attack"></div>
+                  <div class="ui-map-target-dot" style="top:32%; left:75%;" title="Asia Attack"></div>
+                  <div class="ui-map-target-dot" style="top:58%; left:22%;" title="South America Attack"></div>
+                  
+                  <div class="ui-map-attribution">Leaflet | CARTO</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 7: TECHNOLOGY & CONCLUSION -->
+      <section class="slide" data-index="7" data-notes="Summarize the core technical stack (React, Node, Socket.io, Gemini) and deliver the concluding tagline with confidence.">
+        <div class="slide-headline-group">
+          <div class="slide-kicker">Summary</div>
+          <h2 class="slide-main-title">Technology Stack & Conclusion</h2>
+        </div>
+
+        <div class="tech-conclusion-layout">
+          <!-- Left: Tech Matrix -->
+          <div class="tech-matrix">
+            <div class="matrix-row">
+              <div class="matrix-category">Frontend Stack</div>
+              <div class="matrix-items">React 19, Vite, Leaflet, React-Leaflet, Recharts, GSAP, Socket.io-client</div>
+            </div>
+
+            <div class="matrix-row">
+              <div class="matrix-category">Backend & Services</div>
+              <div class="matrix-items">Node.js, Express 5, Socket.io (WebSockets), Axios, Supabase, Nodemailer</div>
+            </div>
+
+            <div class="matrix-row">
+              <div class="matrix-category">Intelligence & AI Engine</div>
+              <div class="matrix-items">Feodo Tracker, MalwareBazaar, ThreatFox, CISA KEV, DShield, Gemini 2.5 Flash</div>
+            </div>
+          </div>
+
+          <!-- Right: Formal Conclusion Box -->
+          <div class="formal-conclusion-box">
+            <div class="conclusion-quote-text">
+              “ShieldOne — From raw threat intelligence to real-time security awareness.”
+            </div>
+            <div class="conclusion-subline">
+              Unified threat visibility, rapid automated triage, and proactive incident response for modern security operations.
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Speaker Notes Drawer -->
+    <div class="notes-drawer" id="notesDrawer">
+      <div class="notes-header">
+        <span>Presenter Notes (Press N to close)</span>
+        <span id="notesSlideTag">Slide 1</span>
+      </div>
+      <div class="notes-text" id="notesContent">...</div>
+    </div>
+
+    <!-- Deck Control Bar -->
+    <footer class="deck-control-bar">
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <button class="btn-control" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <button class="btn-control btn-primary-action" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+      </div>
+
+      <!-- Center Dots -->
+      <div class="slide-dots-indicator" id="dotsContainer"></div>
+
+      <!-- Right Actions -->
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <button class="btn-control" id="notesBtn" onclick="toggleNotes()" title="Toggle Speaker Notes (N)">Notes (N)</button>
+        <button class="btn-control" onclick="toggleFullscreen()" title="Fullscreen (F)">⛶ Fullscreen</button>
+        <span class="hotkey-hint">Keys: ← / → / 1-7</span>
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    let currentSlide = 1;
+    const totalSlides = 7;
+    const slides = document.querySelectorAll('.slide');
+    const indicator = document.getElementById('slideIndicator');
+    const progressBar = document.getElementById('progressBar');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const dotsContainer = document.getElementById('dotsContainer');
+    const notesDrawer = document.getElementById('notesDrawer');
+    const notesContent = document.getElementById('notesContent');
+    const notesSlideTag = document.getElementById('notesSlideTag');
+
+    // Create dot indicators
+    for (let i = 1; i <= totalSlides; i++) {
+      const dot = document.createElement('div');
+      dot.className = `slide-dot-item ${i === 1 ? 'active' : ''}`;
+      dot.title = `Jump to Slide ${i}`;
+      dot.addEventListener('click', () => showSlide(i));
+      dotsContainer.appendChild(dot);
+    }
+    const dots = document.querySelectorAll('.slide-dot-item');
+
+    function showSlide(index) {
+      if (index < 1 || index > totalSlides) return;
+      currentSlide = index;
+
+      slides.forEach((slide) => {
+        slide.classList.remove('active');
+        if (parseInt(slide.getAttribute('data-index')) === currentSlide) {
+          slide.classList.add('active');
+          const notes = slide.getAttribute('data-notes') || 'No notes for this slide.';
+          notesContent.textContent = notes;
+          notesSlideTag.textContent = `Slide ${currentSlide} of ${totalSlides}`;
+        }
+      });
+
+      dots.forEach((dot, idx) => {
+        dot.classList.toggle('active', idx + 1 === currentSlide);
+      });
+
+      indicator.textContent = `Slide ${currentSlide} of ${totalSlides}`;
+      progressBar.style.width = `${(currentSlide / totalSlides) * 100}%`;
+
+      prevBtn.disabled = currentSlide === 1;
+      nextBtn.disabled = currentSlide === totalSlides;
+      nextBtn.textContent = currentSlide === totalSlides ? 'Finished ✓' : 'Next →';
+    }
+
+    function changeSlide(step) {
+      showSlide(currentSlide + step);
+    }
+
+    function toggleNotes() {
+      notesDrawer.classList.toggle('open');
+    }
+
+    function toggleFullscreen() {
+      const elem = document.getElementById('deckContainer');
+      if (!document.fullscreenElement) {
+        if (elem.requestFullscreen) elem.requestFullscreen();
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+    }
+
+    // Keyboard Shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        changeSlide(1);
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        changeSlide(-1);
+      } else if (e.key >= '1' && e.key <= '7') {
+        showSlide(parseInt(e.key));
+      } else if (e.key === 'n' || e.key === 'N') {
+        toggleNotes();
+      } else if (e.key === 'f' || e.key === 'F') {
+        toggleFullscreen();
+      }
+    });
+
+    showSlide(1);
+  </script>
+</body>
+</html>

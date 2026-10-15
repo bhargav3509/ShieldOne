@@ -13,7 +13,7 @@ export default function RiskGauge({ riskScore, anomaly }) {
   const dashOffset = circumference * (1 - progress);
 
   const getRiskLabel = (score) => {
-    if (score >= 70) return { level: 'Critical', desc: 'Multiple high-severity threats detected. Immediate action recommended.' };
+    if (score >= 70) return { level: 'Critical', desc: 'Multiple high-severity threats detected. Immediate investigation recommended.' };
     if (score >= 40) return { level: 'Elevated', desc: 'Moderate threat level. Monitor and investigate flagged events.' };
     return { level: 'Normal', desc: 'Low threat activity. Systems operating within expected parameters.' };
   };
@@ -22,30 +22,15 @@ export default function RiskGauge({ riskScore, anomaly }) {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.to(fillRef.current, {
-        strokeDashoffset: dashOffset,
-        duration: 1.2,
-        ease: 'power2.out',
-      });
-
-      gsap.to(scoreRef.current, {
-        innerText: riskScore,
-        duration: 1,
-        ease: 'power2.out',
-        snap: { innerText: 1 },
-      });
+      gsap.to(fillRef.current, { strokeDashoffset: dashOffset, duration: 1.2, ease: 'power2.out' });
+      gsap.to(scoreRef.current, { innerText: riskScore, duration: 1, ease: 'power2.out', snap: { innerText: 1 } });
     }, gaugeRef);
-
     return () => ctx.revert();
   }, [riskScore, dashOffset]);
 
   useEffect(() => {
     if (anomaly && bannerRef.current) {
-      gsap.fromTo(
-        bannerRef.current,
-        { x: -8 },
-        { x: 0, duration: 0.5, ease: 'elastic.out(1, 0.3)' }
-      );
+      gsap.fromTo(bannerRef.current, { x: -6 }, { x: 0, duration: 0.4, ease: 'elastic.out(1, 0.3)' });
     }
   }, [anomaly]);
 
@@ -71,11 +56,10 @@ export default function RiskGauge({ riskScore, anomaly }) {
           </div>
 
           <div className="risk-info">
-            <div className="risk-level">● {level} Threat Level</div>
+            <div className="risk-level">{level} Threat Level</div>
             <p className="risk-description">{desc}</p>
             {anomaly && (
               <div className="anomaly-banner" ref={bannerRef}>
-                <span className="anomaly-icon">⚠</span>
                 Anomaly Detected — Unusual spike in high-severity events
               </div>
             )}

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">ShieldOne</title>
+  <desc id="desc">ShieldOne Security Operations Center Favicon</desc>
+  <g shape-rendering="geometricPrecision">
+    <!-- Outer Shield Outline (White for maximum contrast on dark and light themes) -->
+    <path d="M256 24
+             L466 88
+             L466 280
+             C466 384 372 454 256 488
+             C140 454 46 384 46 280
+             L46 88Z"
+          fill="#FFFFFF"/>
+
+    <!-- Inner Shield Body (Navy Slate #0F172A) -->
+    <path d="M256 50
+             L442 106
+             L442 272
+             C442 364 358 428 256 458
+             C154 428 70 364 70 272
+             L70 106Z"
+          fill="#0F172A"/>
+
+    <!-- Monitoring Capsule (Bright White) -->
+    <rect x="186" y="146" width="140" height="220" rx="70" fill="#FFFFFF"/>
+
+    <!-- Inner Pupil Ring -->
+    <circle cx="256" cy="256" r="46" fill="#0F172A"/>
+
+    <!-- Coral Red Monitoring Core Indicator -->
+    <circle cx="256" cy="256" r="34" fill="#F43F5E"/>
+    <circle cx="256" cy="256" r="14" fill="#FFE4E6"/>
+  </g>
+</svg>

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
+import { API_URL } from '../App';
 
 export default function AlertFeed({ attacks, onExplain }) {
   const feedRef = useRef(null);
@@ -15,13 +16,7 @@ export default function AlertFeed({ attacks, onExplain }) {
       if (newItems?.length) {
         const newCount = attacks.length - prevCountRef.current;
         const toAnimate = Array.from(newItems).slice(0, newCount);
-        gsap.from(toAnimate, {
-          x: -30,
-          opacity: 0,
-          duration: 0.4,
-          stagger: 0.05,
-          ease: 'power2.out',
-        });
+        gsap.from(toAnimate, { x: -24, opacity: 0, duration: 0.35, stagger: 0.04, ease: 'power2.out' });
       }
     }
     prevCountRef.current = attacks.length;
@@ -29,26 +24,15 @@ export default function AlertFeed({ attacks, onExplain }) {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.from(feedRef.current, {
-        y: 30,
-        opacity: 0,
-        duration: 0.7,
-        ease: 'power3.out',
-        delay: 0.7,
-      });
+      gsap.from(feedRef.current, { y: 24, opacity: 0, duration: 0.6, ease: 'power3.out', delay: 0.5 });
     });
     return () => ctx.revert();
   }, []);
 
-  // Animate panel slide in/out
   useEffect(() => {
     if (!panelRef.current) return;
     if (explanation) {
-      gsap.fromTo(
-        panelRef.current,
-        { x: 400, opacity: 0 },
-        { x: 0, opacity: 1, duration: 0.4, ease: 'power3.out' }
-      );
+      gsap.fromTo(panelRef.current, { x: 360, opacity: 0 }, { x: 0, opacity: 1, duration: 0.35, ease: 'power3.out' });
     }
   }, [explanation]);
 
@@ -58,17 +42,14 @@ export default function AlertFeed({ attacks, onExplain }) {
       const result = await onExplain(attack);
       setExplanation({ loading: false, text: result, attack });
     } catch {
-      setExplanation({ loading: false, text: 'Failed to get explanation.', attack });
+      setExplanation({ loading: false, text: 'Failed to get AI explanation.', attack });
     }
   };
 
   const closePanel = () => {
     if (panelRef.current) {
       gsap.to(panelRef.current, {
-        x: 400,
-        opacity: 0,
-        duration: 0.3,
-        ease: 'power2.in',
+        x: 360, opacity: 0, duration: 0.25, ease: 'power2.in',
         onComplete: () => setExplanation(null),
       });
     } else {
@@ -82,7 +63,6 @@ export default function AlertFeed({ attacks, onExplain }) {
     <>
       <div className="card" ref={feedRef} style={{ gridColumn: '1 / -1' }}>
         <div className="card-title">
-          <span className="icon">⚑</span>
           Live Alert Feed
           <span
             className="text-mono"
@@ -98,12 +78,10 @@ export default function AlertFeed({ attacks, onExplain }) {
               <span className={`alert-icon alert-icon-${a.severity}`}></span>
               <div className="alert-content">
                 <div className="alert-type">{a.type}</div>
-                <div className="alert-meta">{a.ip} · {a.time}</div>
+                <div className="alert-meta text-mono">{a.ip}{a.country ? ` · ${a.country}` : ''} · {a.time}</div>
               </div>
-              <span className={`severity-badge severity-${a.severity}`}>
-                {a.severity}
-              </span>
-              <button className="btn btn-ghost" onClick={() => handleExplain(a)}>
+              <span className={`severity-badge severity-${a.severity}`}>{a.severity}</span>
+              <button className="btn btn-ghost" onClick={() => handleExplain(a)} id={`explain-${a.id}`}>
                 Explain
               </button>
             </div>
@@ -111,19 +89,17 @@ export default function AlertFeed({ attacks, onExplain }) {
         </div>
       </div>
 
-      {/* Fixed side panel for AI analysis */}
+      {/* Fixed AI analysis panel */}
       {explanation && (
         <div className="ai-side-panel" ref={panelRef}>
           <div className="ai-side-panel-header">
             <h4>AI Analysis</h4>
-            <button className="chatbot-close" onClick={closePanel}>✕</button>
+            <button className="chatbot-close" onClick={closePanel} id="close-ai-panel">Close</button>
           </div>
           <div className="ai-side-panel-threat">
             <span className={`alert-icon alert-icon-${explanation.attack?.severity}`}></span>
             <div>
-              <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>
-                {explanation.attack?.type}
-              </div>
+              <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>{explanation.attack?.type}</div>
               <div className="text-mono" style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
                 {explanation.attack?.ip} · {explanation.attack?.time}
               </div>

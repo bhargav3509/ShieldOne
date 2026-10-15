@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import gsap from 'gsap';
 
-export default function LandingPage({ onEnter, theme }) {
+export default function LandingPage({ theme }) {
+  const navigate = useNavigate();
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
   const buttonRef = useRef(null);
@@ -9,6 +11,7 @@ export default function LandingPage({ onEnter, theme }) {
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    if (!canvas) return;
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
     
     let particlesArray = [];
@@ -34,16 +37,13 @@ export default function LandingPage({ onEnter, theme }) {
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseleave', handleMouseLeave);
 
-    // Set canvas size to window size
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    const text = 'sheildOne';
+    const text = 'ShieldOne';
     
-    // Particle Class
     class Particle {
       constructor(x, y, color) {
-        // Spawn randomly from one of the 4 screen edges
         const edge = Math.floor(Math.random() * 4);
         if (edge === 0) {
           this.x = Math.random() * canvas.width;
@@ -58,11 +58,11 @@ export default function LandingPage({ onEnter, theme }) {
           this.x = canvas.width + 20;
           this.y = Math.random() * canvas.height;
         }
-        this.size = 2; // Pixel size
+        this.size = 2;
         this.baseX = x;
         this.baseY = y;
         this.color = color;
-        this.density = (Math.random() * 30) + 1; // Used for repel speed
+        this.density = (Math.random() * 30) + 1;
         this.vx = 0;
         this.vy = 0;
       }
@@ -82,25 +82,22 @@ export default function LandingPage({ onEnter, theme }) {
         let forceDirectionX = dx / distance;
         let forceDirectionY = dy / distance;
         
-        // Max distance, past that the force is 0
         let maxDistance = mouse.radius;
         let force = (maxDistance - distance) / maxDistance;
         let directionX = forceDirectionX * force * this.density;
         let directionY = forceDirectionY * force * this.density;
 
         if (distance < mouse.radius && mouse.x !== null) {
-          // Repel from mouse
           this.x -= directionX;
           this.y -= directionY;
         } else {
-          // Return to base position (combine to form the word)
           if (this.x !== this.baseX) {
             let dxBase = this.x - this.baseX;
-            this.x -= dxBase / 35; // Slower ease back to position
+            this.x -= dxBase / 35;
           }
           if (this.y !== this.baseY) {
             let dyBase = this.y - this.baseY;
-            this.y -= dyBase / 35; // Slower ease back to position
+            this.y -= dyBase / 35;
           }
         }
       }
@@ -108,51 +105,38 @@ export default function LandingPage({ onEnter, theme }) {
 
     const initParticles = () => {
       particlesArray = [];
-      
-      // Draw text to read pixel data
       ctx.fillStyle = 'white';
-      // Use the global font we set in styles.css
-      ctx.font = `bold ${Math.min(canvas.width / 8, 150)}px 'Bitcount Single', system-ui, sans-serif`;
+      ctx.font = `bold ${Math.min(canvas.width / 7, 140)}px 'Inter', system-ui, sans-serif`;
       
       const textMetrics = ctx.measureText(text);
       const textWidth = textMetrics.width;
-      
       const startX = (canvas.width - textWidth) / 2;
       const startY = canvas.height / 2;
       
       ctx.fillText(text, startX, startY);
 
-      // Extract pixel data
       const textCoordinates = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      ctx.clearRect(0, 0, canvas.width, canvas.height); // clear the actual text
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Loop over every pixel. To save performance, we sample every 4th pixel
       const sampleRate = 3; 
       
-      // Create a gradient for the particles
       for (let y = 0, y2 = textCoordinates.height; y < y2; y += sampleRate) {
         for (let x = 0, x2 = textCoordinates.width; x < x2; x += sampleRate) {
-          // imageData.data is a 1D array of RGBA values [r,g,b,a, r,g,b,a...]
-          // We check the Alpha channel (opacity) to see if a pixel was drawn there
           const alphaIndex = (y * 4 * textCoordinates.width) + (x * 4) + 3;
           if (textCoordinates.data[alphaIndex] > 128) {
-            
-            // Generate a monochromatic color based on theme
             let shade;
             if (theme === 'light') {
-              shade = Math.floor(Math.random() * 105) + 50; // 50-155 (dark gray)
+              shade = Math.floor(Math.random() * 105) + 50;
             } else {
-              shade = Math.floor(Math.random() * 105) + 150; // 150-255 (light gray/white)
+              shade = Math.floor(Math.random() * 105) + 150;
             }
-            const alpha = (Math.random() * 0.5 + 0.5).toFixed(2); // 0.5 - 1.0
-            
+            const alpha = (Math.random() * 0.5 + 0.5).toFixed(2);
             particlesArray.push(new Particle(x, y, `rgba(${shade},${shade},${shade},${alpha})`));
           }
         }
       }
       
-      // Once particles are initialized, show the button
-      setTimeout(() => setIsReady(true), 2500); 
+      setTimeout(() => setIsReady(true), 1600); 
     };
 
     const animate = () => {
@@ -181,22 +165,19 @@ export default function LandingPage({ onEnter, theme }) {
       window.removeEventListener('resize', handleResize);
       cancelAnimationFrame(animationFrameId);
     };
-  }, []);
+  }, [theme]);
 
   const handleEnter = () => {
-    // Exit animation for the landing page
-    const tl = gsap.timeline({ onComplete: onEnter });
-    
+    const tl = gsap.timeline({ onComplete: () => navigate('/auth') });
     if (buttonRef.current) {
       tl.to(buttonRef.current, { opacity: 0, y: 20, duration: 0.3 });
     }
-    
-    tl.to(canvasRef.current, { 
-      opacity: 0, 
-      scale: 1.1, 
+    tl.to(canvasRef.current, {
+      opacity: 0,
+      scale: 1.1,
       filter: 'blur(20px)',
-      duration: 1, 
-      ease: 'power3.inOut' 
+      duration: 0.8,
+      ease: 'power3.inOut'
     });
   };
 
